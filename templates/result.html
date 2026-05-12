@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Sınav Sonucu</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <span>Sınav Sistemi | Sonuç Ekranı</span>
+        <a href="/logout" style="color: white; text-decoration: none;">Çıkış Yap</a>
+    </nav>
+
+    <div class="container" style="text-align: center; margin-top: 80px;">
+        <div class="card" style="padding: 50px; border-top: 8px solid var(--success-color);">
+            <h1 style="color: var(--secondary-color);">Sınav Başarıyla Tamamlandı!</h1>
+            <p style="font-size: 18px; color: #666;">Performans Analiziniz:</p>
+            
+            <div style="background: var(--bg-color); display: inline-block; padding: 20px 40px; border-radius: 50px; margin: 20px 0; border: 2px solid var(--success-color);">
+                <span style="font-size: 48px; font-weight: bold; color: var(--success-color);">%{{ "%.2f"|format(score) }}</span>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <p>Tebrikler! Sınav verilerin sisteme kaydedildi.</p>
+                <br>
+                <a href="/exams" class="btn btn-primary" style="padding: 15px 40px; font-size: 18px;">
+                    🏠 Ana Menüye Dön
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

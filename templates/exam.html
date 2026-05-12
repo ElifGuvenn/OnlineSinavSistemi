@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ exam.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="exam-page-container">
+        <header style="border-bottom: 2px solid #3498db; margin-bottom: 20px; padding-bottom: 10px;">
+            <h2 style="display: inline;">{{ exam.title }}</h2>
+            <div id="timer" style="float: right; font-size: 20px; color: #e74c3c; font-weight: bold;">
+                Kalan Süre: <span id="time">30:00</span>
+            </div>
+        </header>
+
+        <form id="exam-form" action="/exam/{{ exam.id }}" method="post">
+            {% for question in exam.questions %}
+            <div class="question-block" style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #3498db;">
+                <p style="font-size: 18px;"><strong>Soru {{ loop.index }}:</strong> {{ question.text }}</p>
+                
+                <div class="options" style="margin-top: 10px;">
+                    {# JSON formatındaki seçenekleri temizleyip listeye çeviriyoruz #}
+                    {% set options = question.options_json.replace('[', '').replace(']', '').replace('"', '').split(',') %}
+                    {% for option in options %}
+                    <label style="display: block; margin: 10px 0; cursor: pointer;">
+                        <input type="radio" name="question_{{ question.id }}" value="{{ option.strip() }}" required>
+                        {{ option.strip() }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+            
+            <button type="submit" class="btn-submit" style="background: #27ae60; color: white; padding: 15px 30px; border: none; border-radius: 5px; cursor: pointer; font-size: 18px; width: 100%;">Sınavı Bitir</button>
+        </form>
+    </div>
+
+    <script>
+    // 'let' yerine 'var' kullanabilirsin ya da ismi değiştirebilirsin
+   // Değeri bir sayı olarak JavaScript'e aktar
+    let examDuration = parseInt("{{ exam.duration }}"); 
+    const timerDisplay = document.getElementById('time');
+
+    let countdown = setInterval(function() {
+        let minutes = Math.floor(examDuration / 60);
+        let seconds = examDuration % 60;
+        
+        seconds = seconds < 10 ? '0' + seconds : seconds;
+        timerDisplay.textContent = minutes + ":" + seconds;
+
+        if (examDuration <= 0) {
+            clearInterval(countdown);
+            alert("Süre doldu! Sınavınız otomatik gönderiliyor.");
+            document.getElementById('exam-form').submit();
+        } else {
+            examDuration--;
+        }
+    }, 1000);
+</script>
+</body>
+</html>

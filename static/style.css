@@ -1,0 +1,107 @@
+/* Google Fonts'tan modern bir yazı tipi ekleyelim */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+:root {
+    --primary-color: #4a90e2;    /* Modern Mavi */
+    --secondary-color: #2c3e50;  /* Koyu Gri/Mavi */
+    --success-color: #27ae60;    /* Yeşil */
+    --danger-color: #e74c3c;     /* Kırmızı */
+    --bg-color: #f4f7f6;         /* Açık Gri Arkaplan */
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-color);
+    margin: 0;
+    color: #333;
+}
+
+/* Navbar Ayarları */
+.navbar {
+    background-color: var(--secondary-color);
+    padding: 15px 50px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Ana Konteynır */
+.container {
+    max-width: 900px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}
+
+/* Kart Yapısı (Dashboard için) */
+.card {
+    border: 1px solid #eee;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* Form Elemanları */
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box; /* Padding'in genişliği bozmasını engeller */
+}
+
+/* Butonlar */
+.btn {
+    padding: 12px 25px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: 0.3s;
+}
+
+.btn-primary { background-color: var(--primary-color); color: white; }
+.btn-primary:hover { background-color: #357abd; }
+
+.btn-success { background-color: var(--success-color); color: white; }
+.btn-success:hover { background-color: #219150; }
+
+/* Tablo Ayarları */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background-color: #f8f9fa;
+    color: var(--secondary-color);
+}
+
+/* Sınav Soru Blokları */
+.question-block {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 5px solid var(--primary-color);
+    margin-bottom: 20px;
+}

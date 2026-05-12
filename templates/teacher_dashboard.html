@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Öğretmen Paneli</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <span>Sınav Sistemi | Öğretmen Paneli</span>
+        <a href="/logout" style="color: white; text-decoration: none;">Güvenli Çıkış</a>
+    </nav>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>Hoş Geldiniz, Hocam</h1>
+            <a href="/create_exam" class="btn btn-success">+ Yeni Sınav Tanımla</a>
+        </div>
+
+        <div class="dashboard-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+            <div class="card">
+                <h3>Aktif Sınavlarınız</h3>
+                <hr>
+                {% for exam in exams %}
+                <div style="padding: 10px; border-bottom: 1px solid #eee;">
+                    <strong>{{ exam.title }}</strong> <br>
+                    <small>Süre: {{ exam.duration // 60 }} Dakika</small>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="card">
+                <h3>Öğrenci Performansları</h3>
+                <hr>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Öğrenci ID</th>
+                            <th>Puan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for res in results %}
+                        <tr>
+                            <td>Öğrenci #{{ res.user_id }}</td>
+                            <td><span class="badge" style="background: #27ae60; color:white; padding: 3px 8px; border-radius: 4px;">{{ res.score }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

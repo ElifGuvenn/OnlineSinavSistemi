@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Yeni Sınav Oluştur</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <span>Sınav Sistemi | Sınav Hazırlama</span>
+        <a href="/teacher" style="color: white; text-decoration: none;">Panele Dön</a>
+    </nav>
+
+    <div class="container">
+        <div class="card" style="max-width: 600px; margin: 0 auto;">
+            <h2 style="text-align: center; color: var(--secondary);">Yeni Sınav Tanımla</h2>
+            <p style="text-align: center; color: #666; font-size: 14px;">Lütfen sınav bilgilerini ve ilk soruyu eksiksiz giriniz.</p>
+            <hr>
+
+            <form action="/create_exam" method="post">
+                <div class="form-group">
+                    <label><strong>Sınav Başlığı</strong></label>
+                    <input type="text" name="title" class="form-control" placeholder="Örn: Algoritma Analizi Vize" required>
+                </div>
+
+                <div class="form-group">
+                    <label><strong>Sınav Süresi (Dakika)</strong></label>
+                    <input type="number" name="duration" class="form-control" placeholder="Örn: 45" required>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 25px; border: 1px solid #e0e0e0;">
+                    <h4 style="margin-top: 0; color: var(--primary);">Soru Bilgileri</h4>
+                    
+                    <div class="form-group">
+                        <label>Soru Metni:</label>
+                        <textarea name="question_text" class="form-control" rows="3" placeholder="Soruyu buraya yazın..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Seçenekler (Virgülle ayırarak yazın):</label>
+                        <input type="text" name="options" class="form-control" placeholder="Seçenek 1, Seçenek 2, Seçenek 3, Seçenek 4" required>
+                        <small style="color: #888;">Örn: Python, Java, C++, PHP</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Doğru Cevap:</label>
+                        <input type="text" name="correct_answer" class="form-control" placeholder="Doğru olan seçeneği aynen yazın" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px; font-weight: bold; padding: 12px;">
+                    Sınavı Kaydet ve Yayınla
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

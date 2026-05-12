@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Sınav Listesi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="exams-container" style="width: 80%; background: white; padding: 20px; border-radius: 10px;">
+        <h1>Mevcut Sınavlar</h1>
+        <hr>
+        <ul>
+            {% for exam in exams %}
+            <li style="list-style: none; padding: 10px; border-bottom: 1px solid #ddd;">
+                <strong>{{ exam.title }}</strong> - Süre: {{ exam.duration // 60 }} Dakika
+                <a href="{{ url_for('take_exam', exam_id=exam.id) }}" 
+                   style="float: right; background: #3498db; color: white; padding: 5px 15px; text-decoration: none; border-radius: 5px;">
+                   Sınava Gir
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

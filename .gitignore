@@ -1,0 +1,9 @@
+# Python geçici dosyaları
+__pycache__/
+*.pyc
+
+# Veritabanı
+instance/
+
+# VS Code ayarları
+.vscode/
