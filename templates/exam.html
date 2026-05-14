@@ -2,61 +2,162 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>{{ exam.title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExamFlow | {{ exam.title }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-creme: #f7f5ee;
+            --purple-main: #5e5adb;
+            --purple-light: #eeedff;
+            --text-dark: #1a1c33;
+        }
+
+        body { background-color: var(--bg-creme); margin: 0; font-family: 'Segoe UI', sans-serif; }
+        
+        /* Header & Navbar */
+        .exam-header { background-color: var(--text-dark); padding: 20px 50px; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .timer-box { background: rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 10px; text-align: center; border: 1px solid #444; }
+        .timer-val { font-size: 24px; font-weight: bold; display: block; }
+
+        .progress-container { background: white; padding: 15px 50px; border-bottom: 1px solid #ddd; display: flex; align-items: center; justify-content: space-between; }
+        .progress-bar-bg { background: #eee; height: 8px; flex-grow: 1; margin: 0 20px; border-radius: 10px; overflow: hidden; }
+        .progress-fill { background: var(--purple-main); height: 100%; width: 0%; transition: 0.3s; }
+
+        /* Soru Kartı */
+        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .question-card { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: none; }
+        .question-card.active { display: block; animation: fadeIn 0.4s; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .q-label { color: var(--purple-main); font-weight: bold; font-size: 14px; margin-bottom: 10px; display: block; }
+        .q-text { font-size: 20px; font-weight: 600; color: #333; margin-bottom: 30px; }
+
+        /* Şıklar */
+        .option-label { 
+            display: flex; align-items: center; padding: 15px 20px; border: 1px solid #ddd; 
+            border-radius: 12px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; 
+        }
+        .option-label:hover { background-color: #f9f9f9; border-color: var(--purple-main); }
+        .option-label input { margin-right: 15px; accent-color: var(--purple-main); width: 18px; height: 18px; }
+        .option-label.selected { background-color: var(--purple-light); border-color: var(--purple-main); }
+
+        /* Navigasyon Butonları */
+        .nav-controls { display: flex; justify-content: space-between; margin-top: 30px; }
+        .btn-nav { 
+            padding: 12px 30px; border-radius: 10px; border: 1px solid #ccc; background: white; 
+            cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px;
+        }
+        .btn-nav:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-finish { background-color: var(--purple-main); color: white; border: none; padding: 15px 40px; font-size: 16px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 20px; }
+    </style>
 </head>
 <body>
-    <div class="exam-page-container">
-        <header style="border-bottom: 2px solid #3498db; margin-bottom: 20px; padding-bottom: 10px;">
-            <h2 style="display: inline;">{{ exam.title }}</h2>
-            <div id="timer" style="float: right; font-size: 20px; color: #e74c3c; font-weight: bold;">
-                Kalan Süre: <span id="time">30:00</span>
-            </div>
-        </header>
+    <div class="exam-header">
+        <div>
+            <span style="font-size: 12px; opacity: 0.7; letter-spacing: 1px;">SINAV</span>
+            <h2 style="margin: 5px 0 0 0;">{{ exam.title }}</h2>
+        </div>
+        <div class="timer-box">
+            <span style="font-size: 10px; opacity: 0.8;">KALAN SÜRE</span>
+            <span id="time" class="timer-val">00:00</span>
+        </div>
+    </div>
 
+    <div class="progress-container">
+        <span id="q-counter" style="font-size: 14px; font-weight: 600;">1 / {{ exam.questions|length }} soru</span>
+        <div class="progress-bar-bg">
+            <div id="progress-fill" class="progress-fill"></div>
+        </div>
+        <span id="answered-stat" style="font-size: 14px; color: #666;">0 / {{ exam.questions|length }} cevaplanmış</span>
+    </div>
+
+    <div class="container">
         <form id="exam-form" action="/exam/{{ exam.id }}" method="post">
             {% for question in exam.questions %}
-            <div class="question-block" style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #3498db;">
-                <p style="font-size: 18px;"><strong>Soru {{ loop.index }}:</strong> {{ question.text }}</p>
+            <div class="question-card {% if loop.first %}active{% endif %}" data-index="{{ loop.index0 }}">
+                <span class="q-label">SORU {{ loop.index }}</span>
+                <p class="q-text">{{ question.text }}</p>
                 
-                <div class="options" style="margin-top: 10px;">
-                    {# JSON formatındaki seçenekleri temizleyip listeye çeviriyoruz #}
+                <div class="options">
                     {% set options = question.options_json.replace('[', '').replace(']', '').replace('"', '').split(',') %}
                     {% for option in options %}
-                    <label style="display: block; margin: 10px 0; cursor: pointer;">
-                        <input type="radio" name="question_{{ question.id }}" value="{{ option.strip() }}" required>
-                        {{ option.strip() }}
+                    <label class="option-label">
+                        <input type="radio" name="question_{{ question.id }}" value="{{ option.strip() }}" onchange="updateStats()">
+                        <span>{{ option.strip() }}</span>
                     </label>
                     {% endfor %}
                 </div>
             </div>
             {% endfor %}
-            
-            <button type="submit" class="btn-submit" style="background: #27ae60; color: white; padding: 15px 30px; border: none; border-radius: 5px; cursor: pointer; font-size: 18px; width: 100%;">Sınavı Bitir</button>
+
+            <div class="nav-controls">
+                <button type="button" class="btn-nav" id="prevBtn" onclick="changeQuestion(-1)" disabled>
+                    <i class="fas fa-chevron-left"></i> Geri
+                </button>
+                <button type="button" class="btn-nav" id="nextBtn" onclick="changeQuestion(1)">
+                    İleri <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <button type="submit" id="finishBtn" class="btn-finish" style="display: none;">Sınavı Tamamla ve Gönder</button>
         </form>
     </div>
 
     <script>
-    // 'let' yerine 'var' kullanabilirsin ya da ismi değiştirebilirsin
-   // Değeri bir sayı olarak JavaScript'e aktar
-    let examDuration = parseInt("{{ exam.duration }}"); 
-    const timerDisplay = document.getElementById('time');
+        let currentIdx = 0;
+        const questions = document.querySelectorAll('.question-card');
+        const totalQ = questions.length;
 
-    let countdown = setInterval(function() {
-        let minutes = Math.floor(examDuration / 60);
-        let seconds = examDuration % 60;
-        
-        seconds = seconds < 10 ? '0' + seconds : seconds;
-        timerDisplay.textContent = minutes + ":" + seconds;
+        function changeQuestion(step) {
+            questions[currentIdx].classList.remove('active');
+            currentIdx += step;
+            questions[currentIdx].classList.add('active');
 
-        if (examDuration <= 0) {
-            clearInterval(countdown);
-            alert("Süre doldu! Sınavınız otomatik gönderiliyor.");
-            document.getElementById('exam-form').submit();
-        } else {
-            examDuration--;
+            // Buton kontrolleri
+            document.getElementById('prevBtn').disabled = currentIdx === 0;
+            document.getElementById('nextBtn').style.display = currentIdx === totalQ - 1 ? 'none' : 'flex';
+            document.getElementById('finishBtn').style.display = currentIdx === totalQ - 1 ? 'block' : 'none';
+
+            updateProgress();
         }
-    }, 1000);
-</script>
+
+        function updateProgress() {
+            document.getElementById('q-counter').textContent = (currentIdx + 1) + " / " + totalQ + " soru";
+            let percent = ((currentIdx + 1) / totalQ) * 100;
+            document.getElementById('progress-fill').style.width = percent + "%";
+        }
+
+        function updateStats() {
+            const answered = document.querySelectorAll('input[type="radio"]:checked').length;
+            document.getElementById('answered-stat').textContent = answered + " / " + totalQ + " cevaplanmış";
+            
+            // Seçilen şıkkı görsel olarak işaretle
+            document.querySelectorAll('.option-label').forEach(label => {
+                label.classList.toggle('selected', label.querySelector('input').checked);
+            });
+        }
+
+        // Timer Script
+        let examDuration = parseInt("{{ exam.duration }}"); 
+        const timerDisplay = document.getElementById('time');
+
+        let countdown = setInterval(function() {
+            let minutes = Math.floor(examDuration / 60);
+            let seconds = examDuration % 60;
+            timerDisplay.textContent = (minutes < 10 ? '0' : '') + minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+
+            if (examDuration <= 0) {
+                clearInterval(countdown);
+                document.getElementById('exam-form').submit();
+            } else {
+                examDuration--;
+            }
+        }, 1000);
+
+        updateProgress();
+    </script>
 </body>
 </html>

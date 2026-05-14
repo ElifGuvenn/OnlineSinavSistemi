@@ -2,49 +2,105 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Öğretmen Paneli</title>
+    <title>ExamFlow | Öğretmen Paneli</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
-    <nav class="navbar">
-        <span>Sınav Sistemi | Öğretmen Paneli</span>
-        <a href="/logout" style="color: white; text-decoration: none;">Güvenli Çıkış</a>
+<body class="dashboard-body">
+    <!-- Üst Bar -->
+    <nav class="dash-nav">
+        <div class="nav-content">
+            <span class="brand">ExamFlow</span>
+            <div class="user-info">
+ 
+    <span class="user-avatar">{{ current_user.email[:2].upper() }}</span>
+    <span class="user-name">{{ current_user.email.split('@')[0].title() }}</span>
+    <a href="/logout" class="logout-link">Çıkış</a>
+</div>
+        </div>
     </nav>
 
-    <div class="container">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h1>Hoş Geldiniz, Hocam</h1>
-            <a href="/create_exam" class="btn btn-success">+ Yeni Sınav Tanımla</a>
+    <div class="dashboard-container">
+        <!-- Başlık ve Yeni Sınav Butonu -->
+        <div class="dash-header">
+            <div>
+                <h2>Merhaba, {{ current_user.email.split('@')[0].title() }} Hoca </h2>
+                <p>Sınav durumunuz ve öğrenci performansları</p>
+            </div>
+            <a href="/create_exam" class="btn-purple-action">+ Yeni Sınav</a>
         </div>
 
-        <div class="dashboard-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
-            <div class="card">
-                <h3>Aktif Sınavlarınız</h3>
-                <hr>
-                {% for exam in exams %}
-                <div style="padding: 10px; border-bottom: 1px solid #eee;">
-                    <strong>{{ exam.title }}</strong> <br>
-                    <small>Süre: {{ exam.duration // 60 }} Dakika</small>
+        <!-- İstatistik Kartları -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-file-alt icon-blue"></i>
+                <h3>{{ total_exams }}</h3>
+                <p>Toplam Sınav</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-users icon-green"></i>
+                <h3>{{ total_participation }}</h3>
+                <p>Toplam Katılım</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-chart-bar icon-orange"></i>
+                <h3>{{ avg_score }}</h3>
+                <p>Ortalama Puan</p>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <!-- Sınavlarım Listesi -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h3>Sınavlarım</h3>
+                    <span class="badge-count">{{ total_exams }} sınav</span>
                 </div>
-                {% endfor %}
+                <div class="exam-list">
+                    {% for exam in exams %}
+                    <div class="exam-item">
+                        <div class="exam-info">
+                            <strong>{{ exam.title }}</strong>
+                            <span><i class="far fa-clock"></i> {{ exam.duration // 60 }} dk • {{ exam.questions|length }} soru</span>
+                        </div>
+                        <span class="status-pill">Aktif</span>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
 
-            <div class="card">
-                <h3>Öğrenci Performansları</h3>
-                <hr>
-                <table>
+            <!-- Öğrenci Sonuçları ve Detaylı İnceleme -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h3>Öğrenci Sonuçları</h3>
+                    <span class="badge-count">{{ total_participation }} kayıt</span>
+                </div>
+                <table class="results-table">
                     <thead>
                         <tr>
-                            <th>Öğrenci ID</th>
+                            <th>Öğrenci</th>
+                            <th>Sınav</th>
                             <th>Puan</th>
+                            <th>Detay</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for res in results %}
                         <tr>
-                            <td>Öğrenci #{{ res.user_id }}</td>
-                            <td><span class="badge" style="background: #27ae60; color:white; padding: 3px 8px; border-radius: 4px;">{{ res.score }}</span></td>
+                            <td>
+                                <div class="student-cell">
+                                    <span class="mini-avatar">{{ res.user.email[:2].upper() }}</span>
+                                    <span>{{ res.user.email.split('@')[0] }}</span>
+                                </div>
+                            </td>
+                            <td>{{ res.exam.title }}</td>
+                            <td><span class="score-tag">{{ res.score|round }}</span></td>
+                            <td>
+    
+                                <a href="/student_details/{{ res.id }}" class="inspect-link">
+                                    <i class="fas fa-arrow-right"></i> İncele
+                                </a>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

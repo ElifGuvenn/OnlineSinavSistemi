@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExamFlow | Öğrenci Detayı</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-creme: #f7f5ee;
+            --purple-main: #5e5adb;
+            --text-dark: #1a1c33;
+        }
+
+        body { background-color: var(--bg-creme); margin: 0; font-family: 'Segoe UI', sans-serif; }
+        
+        .navbar { background-color: var(--text-dark); padding: 15px 50px; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+
+        .summary-card {
+            background: white; border-radius: 15px; padding: 30px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; 
+            justify-content: space-between; align-items: center; margin-bottom: 30px;
+        }
+
+        .student-info { display: flex; align-items: center; gap: 20px; }
+        .avatar-large {
+            background: #eeedff; color: var(--purple-main); width: 60px; height: 60px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 24px; font-weight: bold; text-transform: uppercase;
+        }
+
+        .info-text h2 { margin: 0 0 5px 0; color: var(--text-dark); font-size: 22px; text-transform: capitalize; }
+        .info-text p { margin: 0; color: #666; font-size: 15px; }
+
+        .score-display { text-align: right; }
+        .score-value { font-size: 36px; font-weight: bold; color: var(--purple-main); }
+        .score-label { font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+
+        .section-title { font-size: 20px; color: var(--text-dark); margin-bottom: 20px; font-weight: 600; }
+
+        .question-item {
+            background: white; border-radius: 12px; padding: 25px; 
+            border: 1px solid #e5e7eb; margin-bottom: 15px;
+        }
+
+        .question-item.correct-bg { border-left: 5px solid #10b981; }
+        .question-item.wrong-bg { border-left: 5px solid #f43f5e; }
+
+        .q-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .q-number { font-weight: bold; color: var(--purple-main); }
+        .q-text { font-size: 16px; color: #333; margin: 0 0 20px 0; font-weight: 500; }
+
+        /* Yeni Doğru/Yanlış Etiketleri (Pill) */
+        .pill-correct { display: inline-block; background: #d1fae5; color: #065f46; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-top: 5px;}
+        .pill-wrong { display: inline-block; background: #fee2e2; color: #991b1b; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-top: 5px;}
+
+        .btn-back { color: white; text-decoration: none; font-size: 14px; opacity: 0.9; }
+        .btn-back:hover { opacity: 1; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <span style="font-weight: bold; font-size: 20px;">ExamFlow</span>
+        <a href="/teacher" class="btn-back"><i class="fas fa-arrow-left"></i> Öğretmen Paneline Dön</a>
+    </nav>
+
+    <div class="container">
+        <!-- Öğrenci Özet Kartı -->
+        <div class="summary-card">
+            <div class="student-info">
+                <div class="avatar-large">{{ result.user.email[:2] }}</div>
+                <div class="info-text">
+                    <h2>{{ result.user.email.split('@')[0] }}</h2>
+                    <p>{{ result.exam.title }} - Sınav İncelemesi</p>
+                </div>
+            </div>
+            <div class="score-display">
+                <div class="score-value">{{ result.score|round|int }}</div>
+                <div class="score-label">Sınav Puanı</div>
+            </div>
+        </div>
+
+        <div class="section-title">Sınav Soru Analizi</div>
+
+        <!-- YENİ: Veritabanındaki 'UserAnswer' Tablosundan Verileri Çekiyoruz -->
+        {% for answer in result.answers %}
+        <div class="question-item {% if answer.is_correct %}correct-bg{% else %}wrong-bg{% endif %}">
+            <div class="q-header">
+                <span class="q-number">Soru {{ loop.index }}</span>
+            </div>
+            <p class="q-text">{{ answer.question.text }}</p>
+            
+            {% if answer.is_correct %}
+                <div>
+                    <span class="pill-correct"><i class="fas fa-check"></i> Doğru Cevap: {{ answer.question.correct_answer }}</span>
+                </div>
+            {% else %}
+                <div>
+                    <span class="pill-wrong"><i class="fas fa-times"></i> Öğrencinin Cevabı: {{ answer.selected_answer }}</span>
+                    <span class="pill-correct" style="margin-left: 5px;">Doğru Cevap: {{ answer.question.correct_answer }}</span>
+                </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        
+    </div>
+</body>
+</html>

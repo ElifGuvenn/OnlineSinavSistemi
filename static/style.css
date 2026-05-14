@@ -1,107 +1,242 @@
-/* Google Fonts'tan modern bir yazı tipi ekleyelim */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
-
 :root {
-    --primary-color: #4a90e2;    /* Modern Mavi */
-    --secondary-color: #2c3e50;  /* Koyu Gri/Mavi */
-    --success-color: #27ae60;    /* Yeşil */
-    --danger-color: #e74c3c;     /* Kırmızı */
-    --bg-color: #f4f7f6;         /* Açık Gri Arkaplan */
+    --bg-color: #1a1c33; /* Arka plan lacivert */
+    --card-bg: #ffffff;
+    --primary-purple: #5e5adb;
+    --input-bg: #f4f4ee;
+    --text-main: #333333;
+    --text-muted: #666666;
 }
 
-body {
-    font-family: 'Poppins', sans-serif;
+* {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.login-body {
     background-color: var(--bg-color);
-    margin: 0;
-    color: #333;
-}
-
-/* Navbar Ayarları */
-.navbar {
-    background-color: var(--secondary-color);
-    padding: 15px 50px;
-    color: white;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    height: 100vh;
+    margin: 0;
 }
 
-/* Ana Konteynır */
-.container {
-    max-width: 900px;
-    margin: 40px auto;
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-}
-
-/* Kart Yapısı (Dashboard için) */
-.card {
-    border: 1px solid #eee;
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    transition: transform 0.2s;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-}
-
-/* Form Elemanları */
-input, select, textarea {
+.login-card {
+    background: var(--card-bg);
     width: 100%;
-    padding: 12px;
-    margin: 10px 0;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
-    box-sizing: border-box; /* Padding'in genişliği bozmasını engeller */
+    max-width: 400px;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    text-align: center;
+    position: relative;
 }
 
-/* Butonlar */
-.btn {
-    padding: 12px 25px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
+.logo-icon {
+    background: #eeedff;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+    margin: 0 auto 15px;
+    color: var(--primary-purple);
+    font-size: 24px;
+}
+
+.logo-section h1 {
+    margin: 0;
+    font-size: 24px;
+    color: var(--text-main);
+}
+
+.logo-section p {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-top: 5px;
+    margin-bottom: 30px;
+}
+
+.input-group {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 14px;
     font-weight: 600;
-    text-decoration: none;
-    display: inline-block;
+    margin-bottom: 8px;
+    color: var(--text-main);
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: var(--input-bg);
+    font-size: 14px;
+}
+
+.btn-primary {
+    width: 100%;
+    background-color: var(--primary-purple);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
     transition: 0.3s;
 }
 
-.btn-primary { background-color: var(--primary-color); color: white; }
-.btn-primary:hover { background-color: #357abd; }
+.btn-primary:hover {
+    background-color: #4b47b5;
+}
 
-.btn-success { background-color: var(--success-color); color: white; }
-.btn-success:hover { background-color: #219150; }
+.divider {
+    margin: 25px 0;
+    position: relative;
+    border-top: 1px solid #eee;
+}
 
-/* Tablo Ayarları */
-table {
+.divider span {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 0 10px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.btn-secondary {
+    display: block;
+    width: 100%;
+    text-decoration: none;
+    color: var(--text-main);
+    border: 1px solid #ddd;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.btn-secondary:hover {
+    background-color: #f8f8f8;
+}
+
+.scroll-down {
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    color: var(--text-muted);
+}
+
+/* Uyarı Mesajları */
+.alert {
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 13px;
+}
+.alert-danger { background: #ffebeb; color: #d93025; }
+.alert-success { background: #e6ffed; color: #1e7e34; }
+
+.dashboard-body {
+    background-color: #f7f5ee; /* Görseldeki o özel arka plan rengi */
+    margin: 0;
+}
+
+.dash-nav {
+    background-color: #1a1c33;
+    padding: 15px 50px;
+    color: white;
+}
+
+.dashboard-container {
+    padding: 30px 50px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.btn-purple-action {
+    background-color: #5e5adb;
+    color: white;
+    padding: 10px 25px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 30px;
+}
+
+.content-card {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+}
+
+.results-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
 }
 
-th, td {
-    padding: 15px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
+.score-tag {
+    background: #e6ffed;
+    color: #1e7e34;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-weight: bold;
 }
 
-th {
-    background-color: #f8f9fa;
-    color: var(--secondary-color);
+.inspect-link {
+    color: #5e5adb;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
 }
 
-/* Sınav Soru Blokları */
-.question-block {
-    background: #f9f9f9;
-    padding: 20px;
-    border-radius: 10px;
-    border-left: 5px solid var(--primary-color);
-    margin-bottom: 20px;
+.mini-avatar {
+    background: #eeedff;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    margin-right: 10px;
 }

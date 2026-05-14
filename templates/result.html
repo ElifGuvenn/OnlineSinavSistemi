@@ -2,31 +2,139 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Sınav Sonucu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExamFlow | Sınav Sonucu</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-creme: #f7f5ee;
+            --purple-main: #5e5adb;
+            --success-green: #d1fae5;
+            --success-text: #065f46;
+            --error-red: #fee2e2;
+            --error-text: #991b1b;
+        }
+
+        body { background-color: var(--bg-creme); margin: 0; font-family: 'Segoe UI', sans-serif; }
+        
+        .navbar { background-color: #1a1c33; padding: 15px 50px; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .user-badge { background: #10b981; color: white; padding: 5px 12px; border-radius: 20px; font-weight: bold; margin-right: 10px; text-transform: uppercase; }
+
+        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+
+        .result-card { background: white; border-radius: 20px; padding: 40px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        
+        .circular-progress {
+            position: relative; width: 150px; height: 150px; border-radius: 50%;
+            background: conic-gradient(var(--purple-main) {{ score }}%, #e5e7eb 0);
+            display: flex; align-items: center; justify-content: center; margin: 20px auto;
+        }
+        .circular-progress::before {
+            content: ""; position: absolute; width: 120px; height: 120px;
+            background-color: white; border-radius: 50%;
+        }
+        .progress-value { position: relative; font-size: 28px; font-weight: bold; color: #333; }
+        .progress-label { position: absolute; bottom: 40px; font-size: 12px; color: #666; }
+
+        .stats-row { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
+        .stat-box { background: #f3f4f6; padding: 15px 25px; border-radius: 12px; min-width: 80px; }
+        .stat-box.correct { background: #ecfdf5; color: #059669; }
+        .stat-box.wrong { background: #fef2f2; color: #dc2626; }
+        .stat-num { display: block; font-size: 22px; font-weight: bold; }
+        .stat-text { font-size: 12px; color: #666; }
+
+        .btn-back {
+            display: inline-block; margin-top: 30px; padding: 12px 30px; border: 1.5px solid #ccc;
+            border-radius: 10px; text-decoration: none; color: #444; font-weight: 600; transition: 0.3s;
+        }
+        .btn-back:hover { background: #f9f9f9; }
+
+        .analysis-section { text-align: left; margin-top: 40px; }
+        .analysis-section h3 { font-size: 20px; color: #333; }
+
+        .analysis-item {
+            padding: 15px 20px; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: flex-start; gap: 15px;
+        }
+        .analysis-item.correct { background: #ecfdf5; border: 1px solid #10b981; }
+        .analysis-item.wrong { background: #fff1f2; border: 1px solid #f43f5e; }
+
+        .icon-circle {
+            width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;
+        }
+        .correct .icon-circle { background: #10b981; color: white; }
+        .wrong .icon-circle { background: #f43f5e; color: white; }
+
+        .pill { display: inline-block; padding: 4px 12px; border-radius: 15px; font-size: 13px; font-weight: 600; margin-top: 8px; }
+        .pill-correct { background: #d1fae5; color: #065f46; }
+        .pill-user { background: #fee2e2; color: #991b1b; }
+    </style>
 </head>
 <body>
     <nav class="navbar">
-        <span>Sınav Sistemi | Sonuç Ekranı</span>
-        <a href="/logout" style="color: white; text-decoration: none;">Çıkış Yap</a>
+        <span style="font-weight: bold; font-size: 20px;">ExamFlow</span>
+        <div style="display: flex; align-items: center;">
+            <!-- Dinamik Kullanıcı Baş Harfleri -->
+            <span class="user-badge">{{ user_initials }}</span> 
+            <a href="/logout" style="color: white; text-decoration: none; font-size: 14px;">Çıkış</a>
+        </div>
     </nav>
 
-    <div class="container" style="text-align: center; margin-top: 80px;">
-        <div class="card" style="padding: 50px; border-top: 8px solid var(--success-color);">
-            <h1 style="color: var(--secondary-color);">Sınav Başarıyla Tamamlandı!</h1>
-            <p style="font-size: 18px; color: #666;">Performans Analiziniz:</p>
-            
-            <div style="background: var(--bg-color); display: inline-block; padding: 20px 40px; border-radius: 50px; margin: 20px 0; border: 2px solid var(--success-color);">
-                <span style="font-size: 48px; font-weight: bold; color: var(--success-color);">%{{ "%.2f"|format(score) }}</span>
+    <div class="container">
+        <div class="result-card">
+            <h2 style="margin: 0; color: #333;">Sınav Tamamlandı</h2>
+            <p style="color: #666; margin-top: 5px;">{{ exam_title }}</p>
+
+            <div class="circular-progress">
+                <span class="progress-value">%{{ score|round|int }}</span>
+                <span class="progress-label">Başarı</span>
             </div>
 
-            <div style="margin-top: 30px;">
-                <p>Tebrikler! Sınav verilerin sisteme kaydedildi.</p>
-                <br>
-                <a href="/exams" class="btn btn-primary" style="padding: 15px 40px; font-size: 18px;">
-                    🏠 Ana Menüye Dön
-                </a>
+            <div class="stats-row">
+                <div class="stat-box correct">
+                    <span class="stat-num">{{ correct_count }}</span>
+                    <span class="stat-text">Doğru</span>
+                </div>
+                <div class="stat-box wrong">
+                    <span class="stat-num">{{ wrong_count }}</span>
+                    <span class="stat-text">Yanlış</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-num">{{ total_questions }}</span>
+                    <span class="stat-text">Toplam</span>
+                </div>
             </div>
+
+            <a href="/exams" class="btn-back"><i class="fas fa-arrow-left"></i> Sınav Listesine Dön</a>
+        </div>
+
+        <div class="analysis-section">
+            <h3>Soru Analizi</h3>
+            
+            <!-- Python'dan Gelen Gerçek Soru Analiz Döngüsü -->
+            {% for item in analysis_data %}
+                {% if item.is_correct %}
+                <!-- DOĞRU CEVAP KARTLARI -->
+                <div class="analysis-item correct">
+                    <div class="icon-circle"><i class="fas fa-check"></i></div>
+                    <div>
+                        <div style="font-weight: 600;">Soru {{ item.number }} — {{ item.text }}</div>
+                        <span class="pill pill-correct">✓ Doğru Cevap: {{ item.correct_answer }}</span>
+                    </div>
+                </div>
+                {% else %}
+                <!-- YANLIŞ CEVAP KARTLARI -->
+                <div class="analysis-item wrong">
+                    <div class="icon-circle"><i class="fas fa-times"></i></div>
+                    <div>
+                        <div style="font-weight: 600;">Soru {{ item.number }} — {{ item.text }}</div>
+                        <span class="pill pill-user">Cevabınız: {{ item.user_answer }}</span>
+                        <span class="pill pill-correct" style="margin-left: 5px;">Doğru Cevap: {{ item.correct_answer }}</span>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+            
         </div>
     </div>
 </body>
