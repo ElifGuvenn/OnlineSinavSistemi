@@ -3,58 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ExamFlow - Kayıt Ol</title>
+    <title>ExamFlow | Kayıt Ol</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(155deg, #1a1a2e 0%, #16213e 60%, #2d2070 100%);
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 20px;
+            padding: 42px 38px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 24px 60px rgba(0,0,0,.35);
+        }
+
+        .auth-logo { text-align: center; margin-bottom: 28px; }
+        .auth-logo-icon {
+            width: 52px; height: 52px;
+            background: #EEEDFE;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 24px; color: #534AB7;
+        }
+        .auth-logo h1 { font-size: 24px; margin: 0 0 4px; color: #1a1a2e; }
+        .auth-logo p  { font-size: 13px; color: #888; margin: 0; }
+
+        .flash { padding: 11px 14px; border-radius: 9px; margin-bottom: 16px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+        .flash-danger  { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .flash-warning { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+        .flash-success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label {
+            display: block; font-size: 12px; font-weight: 700;
+            color: #666; text-transform: uppercase; letter-spacing: .5px;
+            margin-bottom: 6px;
+        }
+        .form-control {
+            width: 100%; padding: 11px 13px;
+            border: 1.5px solid #e5e7eb; border-radius: 10px;
+            font-size: 14px; font-family: 'Segoe UI', sans-serif;
+            color: #1a1a2e; background: #f9f8ff; outline: none;
+            transition: border-color .2s, box-shadow .2s;
+            box-sizing: border-box;
+        }
+        .form-control:focus {
+            border-color: #7F77DD;
+            box-shadow: 0 0 0 3px rgba(127,119,221,.15);
+            background: #fff;
+        }
+
+        .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .role-option { display: none; }
+        .role-label {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 6px; padding: 14px 10px; border-radius: 10px;
+            border: 1.5px solid #e5e7eb; cursor: pointer;
+            font-size: 13px; font-weight: 600; color: #555;
+            transition: all .15s; background: #f9f8ff;
+        }
+        .role-label i { font-size: 20px; color: #aaa; transition: color .15s; }
+        .role-label:hover { border-color: #7F77DD; background: #EEEDFE; }
+        .role-option:checked + .role-label {
+            border-color: #534AB7; background: #EEEDFE; color: #534AB7;
+        }
+        .role-option:checked + .role-label i { color: #534AB7; }
+
+        .btn-submit {
+            width: 100%; padding: 13px;
+            background: #534AB7; color: white; border: none;
+            border-radius: 10px; font-size: 15px; font-weight: 700;
+            cursor: pointer; margin-top: 8px; transition: background .2s;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .btn-submit:hover { background: #4338ca; }
+
+        .auth-footer { text-align: center; margin-top: 20px; font-size: 13px; color: #888; }
+        .auth-footer a { color: #534AB7; font-weight: 700; text-decoration: none; }
+        .auth-footer a:hover { text-decoration: underline; }
+    </style>
 </head>
-<body class="login-body">
-    <div class="login-card">
-        <!-- Logo Alanı -->
-        <div class="logo-section">
-            <div class="logo-icon">
-                <i class="fas fa-user-plus"></i>
-            </div>
-            <h1>Sisteme Kayıt Ol</h1>
-            <p>Bilgilerinizi girerek hesabınızı oluşturun</p>
+<body>
+    <div class="auth-card">
+        <div class="auth-logo">
+            <div class="auth-logo-icon"><i class="fas fa-graduation-cap"></i></div>
+            <h1>ExamFlow</h1>
+            <p>Yeni hesap oluştur</p>
         </div>
 
-        <!-- Flash Mesajları -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                <div class="flash flash-{{ category }}">
+                    <i class="fas fa-info-circle"></i> {{ message }}
+                </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
 
-        <!-- Form Alanı -->
         <form action="/register" method="post">
-            <div class="input-group">
-                <label>E-posta adresi</label>
-                <input type="email" name="email" placeholder="ornek@uni.edu.tr" required>
+            <div class="form-group">
+                <label>Ad Soyad</label>
+                <input type="text" name="name" class="form-control" placeholder="Adınız Soyadınız" required>
             </div>
-            
-            <div class="input-group">
+            <div class="form-group">
+                <label>E-posta Adresi</label>
+                <input type="email" name="email" class="form-control" placeholder="ornek@universite.edu.tr" required>
+            </div>
+            <div class="form-group">
                 <label>Şifre</label>
-                <input type="password" name="password" placeholder="**********" required>
+                <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+            </div>
+            <div class="form-group">
+                <label>Rol</label>
+                <div class="role-grid">
+                    <div>
+                        <input type="radio" name="role" id="role_student" value="student" class="role-option" checked>
+                        <label for="role_student" class="role-label">
+                            <i class="fas fa-user-graduate"></i> Öğrenci
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="role" id="role_teacher" value="teacher" class="role-option">
+                        <label for="role_teacher" class="role-label">
+                            <i class="fas fa-chalkboard-teacher"></i> Öğretmen
+                        </label>
+                    </div>
+                </div>
             </div>
 
-            <div class="input-group">
-                <label>Üyelik Tipi</label>
-                <select name="role" class="form-select">
-                    <option value="student">Öğrenci</option>
-                    <option value="teacher">Öğretmen</option>
-                </select>
-            </div>
-
-            <button type="submit" class="btn-primary">Kayıt Ol</button>
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-user-plus"></i> Kayıt Ol
+            </button>
         </form>
 
-        <div class="divider">
-            <span>zaten hesabın var mı?</span>
+        <div class="auth-footer">
+            Zaten hesabın var mı? <a href="{{ url_for('index') }}">Giriş Yap</a>
         </div>
-
-        <a href="{{ url_for('index') }}" class="btn-secondary">Giriş Ekranına Dön</a>
     </div>
 </body>
 </html>

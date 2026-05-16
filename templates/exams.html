@@ -7,53 +7,84 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --bg-creme: #f7f5ee;
-            --purple-main: #5e5adb;
-            --text-dark: #333;
-        }
-
-        body { background-color: var(--bg-creme); margin: 0; font-family: 'Segoe UI', sans-serif; }
-        
+        body { background-color: #f7f5ee; margin: 0; font-family: 'Segoe UI', sans-serif; }
         .navbar { background-color: #1a1c33; padding: 15px 50px; color: white; display: flex; justify-content: space-between; align-items: center; }
-        .user-badge { background: #10b981; color: white; padding: 5px 12px; border-radius: 20px; font-weight: bold; margin-right: 10px; }
-
+        .user-badge { background: #1D9E75; color: white; padding: 5px 12px; border-radius: 20px; font-weight: bold; margin-right: 10px; font-size: 13px; }
         .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
-
         .page-header { margin-bottom: 30px; }
-        .page-header h1 { margin: 0; font-size: 28px; color: var(--text-dark); }
+        .page-header h1 { margin: 0; font-size: 28px; color: #333; }
         .page-header p { color: #666; margin-top: 5px; }
 
-        /* Sınav Kartları Izgarası */
-        .exams-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+        .exams-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; }
 
         .exam-card {
-            background: white; border-radius: 15px; padding: 25px; border: 1px solid #e0e0e0;
-            transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between;
+            background: white; border-radius: 15px; padding: 24px;
+            border: 1px solid #e0e0e0; display: flex; flex-direction: column;
+            justify-content: space-between; transition: .25s;
         }
-        .exam-card:hover { border-color: var(--purple-main); box-shadow: 0 5px 15px rgba(94, 90, 219, 0.1); }
+        .exam-card:hover { border-color: #7F77DD; box-shadow: 0 5px 18px rgba(83,74,183,.1); transform: translateY(-2px); }
+        .exam-card h3 { margin: 0 0 6px 0; font-size: 19px; color: #1a1a2e; }
 
-        .exam-card h3 { margin: 0 0 15px 0; font-size: 20px; color: var(--text-dark); }
+        .exam-meta { display: flex; gap: 16px; color: #888; font-size: 13px; margin-bottom: 6px; }
+        .exam-meta span i { margin-right: 4px; }
 
-        .exam-meta { display: flex; gap: 20px; color: #666; font-size: 14px; margin-bottom: 25px; }
-        .exam-meta span i { margin-right: 5px; color: #888; }
+        /* Durum Badge */
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 11px; border-radius: 20px; font-size: 12px; font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .status-active   { background: #d1fae5; color: #065f46; }
+        .status-upcoming { background: #e0e7ff; color: #3730a3; }
+        .status-expired  { background: #f3f4f6; color: #6b7280; }
+
+        /* Zaman bilgisi */
+        .time-info { font-size: 12px; color: #999; margin-bottom: 16px; display: flex; flex-direction: column; gap: 3px; }
+        .time-info span { display: flex; align-items: center; gap: 5px; }
+
+        /* Tamamlandı bloğu */
+        .completed-box {
+            background: #f0fdf4; border: 1px solid #6ee7b7; border-radius: 10px;
+            padding: 12px 14px; margin-bottom: 14px;
+        }
+        .completed-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .completed-top .done-label { color: #059669; font-weight: 700; font-size: 13px; }
+        .completed-top .score-label { color: #534AB7; font-weight: 700; font-size: 14px; }
+        .completed-stats { display: flex; gap: 20px; font-size: 13px; color: #555; }
 
         .btn-enter {
-            background-color: var(--purple-main); color: white; text-decoration: none;
-            padding: 12px; border-radius: 10px; text-align: center; font-weight: bold;
-            display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s;
+            background-color: #534AB7; color: white; text-decoration: none;
+            padding: 12px; border-radius: 10px; text-align: center; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: .2s; border: none; font-family: 'Segoe UI', sans-serif;
+            font-size: 14px; cursor: pointer; width: 100%;
         }
-        .btn-enter:hover { background-color: #4b47b5; }
+        .btn-enter:hover { background-color: #4338ca; }
+        .btn-disabled {
+            background-color: #e5e7eb; color: #9ca3af; cursor: not-allowed;
+            padding: 12px; border-radius: 10px; text-align: center; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            font-size: 14px; border: none; font-family: 'Segoe UI', sans-serif;
+        }
+        .btn-completed {
+            background-color: #d1fae5; color: #065f46; cursor: default;
+            padding: 12px; border-radius: 10px; text-align: center; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            font-size: 14px; border: 1px solid #6ee7b7; font-family: 'Segoe UI', sans-serif;
+        }
+
+        .empty-state { text-align: center; padding: 80px 20px; color: #999; }
+        .empty-state i { font-size: 48px; margin-bottom: 16px; display: block; }
     </style>
 </head>
 <body>
     <nav class="navbar">
         <span style="font-weight: bold; font-size: 20px;">ExamFlow</span>
         <div style="display: flex; align-items: center;">
-    <span class="user-badge">{{ current_user.email[:2].upper() }}</span> 
-    <span style="margin-right: 20px; font-size: 14px; text-transform: capitalize;">{{ current_user.email.split('@')[0] }}</span>
-    <a href="/logout" style="color: white; text-decoration: none; font-size: 14px;">Çıkış</a>
-</div>
+            <span class="user-badge">{{ current_user.name[:2].upper() }}</span>
+            <span style="margin-right: 20px; font-size: 14px;">{{ current_user.name }}</span>
+            <a href="/logout" style="color: white; text-decoration: none; font-size: 14px;">Çıkış</a>
+        </div>
     </nav>
 
     <div class="container">
@@ -62,43 +93,75 @@
             <p>Katılmak istediğiniz sınavı seçin</p>
         </div>
 
-       <div class="exams-grid">
+        {% if exams %}
+        <div class="exams-grid">
             {% for exam in exams %}
             <div class="exam-card">
                 <div>
                     <h3>{{ exam.title }}</h3>
-                    
+
+                    <!-- Durum badge -->
+                    {% if exam.status == 'active' %}
+                        <span class="status-badge status-active"><i class="fas fa-circle" style="font-size:8px;"></i> Aktif</span>
+                    {% elif exam.status == 'upcoming' %}
+                        <span class="status-badge status-upcoming"><i class="fas fa-clock"></i> Yakında</span>
+                    {% else %}
+                        <span class="status-badge status-expired"><i class="fas fa-lock"></i> Süresi Doldu</span>
+                    {% endif %}
+
+                    <!-- Zaman bilgisi -->
+                    <div class="time-info">
+                        <span><i class="fas fa-play-circle" style="color:#534AB7;"></i> {{ exam.start_time.strftime('%d.%m.%Y %H:%M') }}</span>
+                        <span><i class="fas fa-stop-circle" style="color:#ef4444;"></i> {{ exam.end_time.strftime('%d.%m.%Y %H:%M') }}</span>
+                    </div>
+
                     {% if exam.id in completed_exams %}
-                    
                         {% set res = completed_exams[exam.id] %}
                         {% set total_q = exam.questions|length %}
                         {% set correct_q = ((res.score / 100) * total_q)|round|int %}
                         {% set wrong_q = total_q - correct_q %}
-                        
-                        <div class="exam-meta" style="background: #ecfdf5; padding: 10px; border-radius: 8px; justify-content: space-between; margin-bottom: 10px;">
-                            <span style="color: #059669; font-weight: bold;"><i class="fas fa-check-circle"></i> Tamamlandı</span>
-                            <span style="color: var(--purple-main); font-weight: bold;">Puan: {{ res.score|round|int }}</span>
+                        <div class="completed-box">
+                            <div class="completed-top">
+                                <span class="done-label"><i class="fas fa-check-circle"></i> Tamamlandı</span>
+                                <span class="score-label">%{{ res.score|round|int }}</span>
+                            </div>
+                            <div class="completed-stats">
+                                <span><strong style="color:#059669;">{{ correct_q }}</strong> Doğru</span>
+                                <span><strong style="color:#dc2626;">{{ wrong_q }}</strong> Yanlış</span>
+                                <span><strong>{{ total_q }}</strong> Toplam</span>
+                            </div>
                         </div>
-                        <div style="font-size: 13px; color: #666; display: flex; justify-content: space-between; margin-bottom: 25px; padding: 0 5px;">
-                            <span><strong style="color: #059669;">{{ correct_q }}</strong> Doğru</span>
-                            <span><strong style="color: #dc2626;">{{ wrong_q }}</strong> Yanlış</span>
-                        </div>
-                        <button class="btn-enter" style="background-color: #d1d5db; color: #6b7280; cursor: not-allowed;" disabled>
-                            Sınava Katıldınız
-                        </button>
                     {% else %}
                         <div class="exam-meta">
                             <span><i class="far fa-clock"></i> {{ exam.duration // 60 }} dk</span>
                             <span><i class="far fa-file-alt"></i> {{ exam.questions|length }} soru</span>
                         </div>
-                        <a href="{{ url_for('take_exam', exam_id=exam.id) }}" class="btn-enter">
-                            <i class="fas fa-arrow-right"></i> Sınava Gir
-                        </a>
                     {% endif %}
                 </div>
+
+                <!-- Alt buton -->
+                {% if exam.id in completed_exams %}
+                    <div class="btn-completed"><i class="fas fa-check"></i> Sınava Katıldınız</div>
+                {% elif exam.status == 'active' %}
+                    <a href="{{ url_for('take_exam', exam_id=exam.id) }}" class="btn-enter">
+                        <i class="fas fa-arrow-right"></i> Sınava Gir
+                    </a>
+                {% elif exam.status == 'upcoming' %}
+                    <div class="btn-disabled"><i class="fas fa-hourglass-half"></i> Henüz Başlamadı</div>
+                {% else %}
+                    <div class="btn-disabled"><i class="fas fa-lock"></i> Sınav Kapalı</div>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
+
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <p style="font-size: 18px; font-weight: 600;">Henüz bir sınav atanmadı.</p>
+            <p style="font-size: 14px;">Öğretmeniniz sınav oluşturduğunda burada görünecek.</p>
+        </div>
+        {% endif %}
     </div>
 </body>
 </html>
