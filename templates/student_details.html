@@ -52,7 +52,6 @@
         .q-number { font-weight: bold; color: var(--purple-main); }
         .q-text { font-size: 16px; color: #333; margin: 0 0 20px 0; font-weight: 500; }
 
-        /* Yeni Doğru/Yanlış Etiketleri (Pill) */
         .pill-correct { display: inline-block; background: #d1fae5; color: #065f46; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-top: 5px;}
         .pill-wrong { display: inline-block; background: #fee2e2; color: #991b1b; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-top: 5px;}
 
@@ -67,24 +66,22 @@
     </nav>
 
     <div class="container">
-        <!-- Öğrenci Özet Kartı -->
         <div class="summary-card">
             <div class="student-info">
-                <div class="avatar-large">{{ result.user.email[:2] }}</div>
+                <div class="avatar-large">{{ result.user.name[:2] }}</div>
                 <div class="info-text">
-                    <h2>{{ result.user.email.split('@')[0] }}</h2>
+                    <h2>{{ result.user.name }}</h2>
                     <p>{{ result.exam.title }} - Sınav İncelemesi</p>
                 </div>
             </div>
             <div class="score-display">
-                <div class="score-value">{{ result.score|round|int }}</div>
+                <div class="score-value">%{{ result.score|round|int }}</div>
                 <div class="score-label">Sınav Puanı</div>
             </div>
         </div>
 
         <div class="section-title">Sınav Soru Analizi</div>
 
-        <!-- YENİ: Veritabanındaki 'UserAnswer' Tablosundan Verileri Çekiyoruz -->
         {% for answer in result.answers %}
         <div class="question-item {% if answer.is_correct %}correct-bg{% else %}wrong-bg{% endif %}">
             <div class="q-header">

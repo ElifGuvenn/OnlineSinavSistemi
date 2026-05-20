@@ -9,6 +9,7 @@
     <style>
         body { background-color: #f7f5ee; margin: 0; font-family: 'Segoe UI', sans-serif; }
         .navbar { background-color: #1a1c33; padding: 15px 50px; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .user-badge { background: #534AB7; color: white; padding: 5px 12px; border-radius: 20px; font-weight: bold; margin-right: 10px; font-size: 13px; }
         .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
         .page-title h2 { margin: 0; color: #333; font-size: 28px; }
         .page-title p { color: #666; margin-bottom: 30px; }
@@ -20,6 +21,9 @@
         .form-control { background-color: #f4f4ee; border: 1px solid #ddd; border-radius: 10px; padding: 11px 13px; font-size: 14px; outline: none; font-family: 'Segoe UI', sans-serif; transition: border-color .2s; }
         .form-control:focus { border-color: #7F77DD; box-shadow: 0 0 0 3px rgba(127,119,221,.12); }
         textarea.form-control { resize: vertical; }
+
+        /* Dropdown (Seçim) Kutusu Stili */
+        select.form-control { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 13px center; background-size: 15px; padding-right: 35px; }
 
         .time-window-box {
             background: #f0effe;
@@ -34,6 +38,21 @@
             margin-bottom: 14px; display: flex; align-items: center; gap: 7px;
         }
         .time-window-box .form-row { margin-bottom: 0; }
+
+        /* Hedef Kitle Kutusu */
+        .target-box {
+            background: #fdfaf0;
+            border: 1px solid #fce8b2;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 25px;
+        }
+        .target-box .target-label {
+            font-size: 13px; font-weight: 700; color: #b45309;
+            text-transform: uppercase; letter-spacing: .4px;
+            margin-bottom: 14px; display: flex; align-items: center; gap: 7px;
+        }
+        .target-box .form-row { margin-bottom: 0; }
 
         .btn-outline { background: white; border: 1px solid #ccc; padding: 12px; border-radius: 10px; cursor: pointer; width: 100%; font-weight: 600; font-size: 15px; transition: .2s; font-family: 'Segoe UI', sans-serif; }
         .btn-outline:hover { background: #f0f0f0; border-color: #7F77DD; }
@@ -50,30 +69,32 @@
 <body>
     <nav class="navbar">
         <span style="font-weight: bold; font-size: 20px;">ExamFlow</span>
-        <a href="/teacher" style="color: white; text-decoration: none; font-size: 14px;"><i class="fas fa-arrow-left"></i> Panele Dön</a>
+        <div style="display: flex; align-items: center;">
+            <a href="/teacher" style="color: white; text-decoration: none; font-size: 14px;"><i class="fas fa-arrow-left"></i> Panele Dön</a>
+        </div>
     </nav>
 
     <div class="container">
 
- {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-            <div style="
-                padding: 12px 16px; border-radius: 10px; margin-bottom: 20px;
-                font-size: 14px; display: flex; align-items: center; gap: 9px;
-                {% if category == 'danger' %}
-                    background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;
-                {% elif category == 'warning' %}
-                    background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;
-                {% else %}
-                    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
-                {% endif %}
-            ">
-                <i class="fas fa-info-circle"></i> {{ message }}
-            </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div style="
+                    padding: 12px 16px; border-radius: 10px; margin-bottom: 20px;
+                    font-size: 14px; display: flex; align-items: center; gap: 9px;
+                    {% if category == 'danger' %}
+                        background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;
+                    {% elif category == 'warning' %}
+                        background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;
+                    {% else %}
+                        background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+                    {% endif %}
+                ">
+                    <i class="fas fa-info-circle"></i> {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
         <div class="page-title">
             <h2>Yeni Sınav Oluştur</h2>
@@ -98,7 +119,36 @@
                     </div>
                 </div>
 
-                <!-- ZAMAN PENCERESİ -->
+                <div class="target-box">
+                    <div class="target-label"><i class="fas fa-users"></i> Hedef Öğrenci Kitlesi</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Okul Düzeyi</label>
+                            <select name="target_level" class="form-control" required>
+                                <option value="">Seçiniz...</option>
+                                <option value="ilkokul">İlkokul</option>
+                                <option value="ortaokul">Ortaokul</option>
+                                <option value="lise">Lise</option>
+                                <option value="universite">Üniversite</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Sınıf</label>
+                            <select name="target_grade" class="form-control" required>
+                                <option value="">Seçiniz...</option>
+                                <option value="1">1. Sınıf</option>
+                                <option value="2">2. Sınıf</option>
+                                <option value="3">3. Sınıf</option>
+                                <option value="4">4. Sınıf</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="info-tip" style="background: #fff; border-color: #fce8b2;">
+                        <i class="fas fa-bullseye"></i>
+                        Bu sınavı sadece seçtiğiniz okul düzeyi ve sınıftaki öğrenciler görebilecektir.
+                    </div>
+                </div>
+
                 <div class="time-window-box">
                     <div class="tw-label"><i class="fas fa-calendar-alt"></i> Sınav Zaman Penceresi</div>
                     <div class="form-row">

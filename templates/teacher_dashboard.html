@@ -6,125 +6,28 @@
     <title>ExamFlow | Öğretmen Paneli</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body { background-color: #f7f5ee; margin: 0; font-family: 'Segoe UI', sans-serif; }
-
-        /* NAV */
-        .dash-nav { background-color: #1a1c33; padding: 0 40px; height: 56px; display: flex; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .nav-content { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .brand { font-weight: 700; font-size: 20px; color: white; }
-        .user-info { display: flex; align-items: center; gap: 12px; }
-        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: #534AB7; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
-        .user-name { color: rgba(255,255,255,.85); font-size: 14px; font-weight: 500; }
-        .logout-link { color: rgba(255,255,255,.55); text-decoration: none; font-size: 13px; transition: color .2s; }
-        .logout-link:hover { color: white; }
-
-        /* LAYOUT */
-        .dashboard-container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
-
-        .dash-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
-        .dash-header h2 { margin: 0 0 4px; font-size: 26px; color: #1a1a2e; }
-        .dash-header p  { margin: 0; color: #888; font-size: 14px; }
-        .header-actions { display: flex; gap: 10px; }
-
-        .btn-purple-action {
-            background: #534AB7; color: white; text-decoration: none;
-            padding: 10px 20px; border-radius: 10px; font-weight: 600; font-size: 14px;
-            display: inline-flex; align-items: center; gap: 7px; transition: .2s;
-            white-space: nowrap;
-        }
-        .btn-purple-action:hover { background: #4338ca; }
-        .btn-outline-action {
-            background: white; color: #534AB7; text-decoration: none;
-            padding: 10px 20px; border-radius: 10px; font-weight: 600; font-size: 14px;
-            display: inline-flex; align-items: center; gap: 7px; transition: .2s;
-            border: 1.5px solid #534AB7; white-space: nowrap;
-        }
-        .btn-outline-action:hover { background: #EEEDFE; }
-
-        /* STAT KARTLARI */
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: white; border-radius: 14px; padding: 20px 22px; border: 1px solid #e5e5e5; }
-        .stat-card i { font-size: 22px; margin-bottom: 10px; display: block; }
-        .stat-card h3 { margin: 0 0 4px; font-size: 30px; color: #1a1a2e; }
-        .stat-card p  { margin: 0; color: #888; font-size: 13px; }
-        .icon-blue   { color: #534AB7; }
-        .icon-green  { color: #1D9E75; }
-        .icon-orange { color: #BA7517; }
-
-        /* İKİ KOLON */
-        .content-grid { display: grid; grid-template-columns: 310px 1fr; gap: 18px; }
-        .content-card { background: white; border-radius: 14px; padding: 22px; border: 1px solid #e5e5e5; }
-        .card-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
-        .card-header h3 { margin: 0; font-size: 16px; color: #1a1a2e; }
-        .badge-count { background: #EEEDFE; color: #3C3489; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
-
-        /* SINAV LİSTESİ */
-        .exam-list { display: flex; flex-direction: column; }
-        .exam-item { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid #f5f5f5; }
-        .exam-item:last-child { border-bottom: none; }
-        .exam-info strong { display: block; font-size: 14px; color: #1a1a2e; margin-bottom: 3px; }
-        .exam-info span   { font-size: 12px; color: #aaa; }
-
-        .status-pill { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
-        .pill-active   { background: #d1fae5; color: #065f46; }
-        .pill-upcoming { background: #e0e7ff; color: #3730a3; }
-        .pill-expired  { background: #f3f4f6; color: #9ca3af; }
-
-        /* SONUÇLAR TABLOSU */
-        .results-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        .results-table th { text-align: left; padding: 8px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: #aaa; border-bottom: 1px solid #f0f0f0; }
-        .results-table td { padding: 11px 12px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; }
-        .results-table tr:last-child td { border-bottom: none; }
-        .results-table tbody tr:hover td { background: #f9f8ff; }
-
-        .student-cell { display: flex; align-items: center; gap: 8px; }
-        .mini-avatar { width: 28px; height: 28px; border-radius: 50%; background: #EEEDFE; color: #3C3489; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-
-        .score-tag { background: #d1fae5; color: #065f46; font-weight: 700; font-size: 12px; padding: 3px 10px; border-radius: 20px; }
-        .score-tag.mid  { background: #fef3c7; color: #92400e; }
-        .score-tag.low  { background: #fee2e2; color: #991b1b; }
-
-        .inspect-link { color: #534AB7; font-weight: 600; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: .15s; }
-        .inspect-link:hover { color: #4338ca; }
-
-        @media (max-width: 800px) {
-            .content-grid { grid-template-columns: 1fr; }
-            .stats-grid   { grid-template-columns: 1fr 1fr; }
-            .header-actions { flex-direction: column; }
-        }
-    </style>
 </head>
-<body>
+<body class="dashboard-body">
     <nav class="dash-nav">
         <div class="nav-content">
             <span class="brand">ExamFlow</span>
             <div class="user-info">
-                <div class="user-avatar">{{ current_user.name[:2].upper() }}</div>
+                <span class="user-avatar">{{ current_user.name[:2].upper() }}</span>
                 <span class="user-name">{{ current_user.name }}</span>
-                <a href="/logout" class="logout-link"><i class="fas fa-sign-out-alt"></i> Çıkış</a>
+                <a href="/logout" class="logout-link">Çıkış</a>
             </div>
         </div>
     </nav>
 
     <div class="dashboard-container">
-        <!-- Başlık -->
         <div class="dash-header">
             <div>
-                <h2>Merhaba, {{ current_user.name }} </h2>
+                <h2>Merhaba, {{ current_user.name }} Hocam 👋</h2>
                 <p>Sınav durumunuz ve öğrenci performansları</p>
             </div>
-            <div class="header-actions">
-                <a href="/manage_students" class="btn-outline-action">
-                    <i class="fas fa-user-cog"></i> Öğrencilerimi Yönet
-                </a>
-                <a href="/create_exam" class="btn-purple-action">
-                    <i class="fas fa-plus"></i> Yeni Sınav
-                </a>
-            </div>
+            <a href="/create_exam" class="btn-purple-action">+ Yeni Sınav</a>
         </div>
 
-        <!-- İstatistikler -->
         <div class="stats-grid">
             <div class="stat-card">
                 <i class="fas fa-file-alt icon-blue"></i>
@@ -138,13 +41,12 @@
             </div>
             <div class="stat-card">
                 <i class="fas fa-chart-bar icon-orange"></i>
-                <h3>{{ avg_score }}</h3>
+                <h3>%{{ avg_score }}</h3>
                 <p>Ortalama Puan</p>
             </div>
         </div>
 
         <div class="content-grid">
-            <!-- Sol: Sınavlar -->
             <div class="content-card">
                 <div class="card-header">
                     <h3>Sınavlarım</h3>
@@ -155,33 +57,31 @@
                     <div class="exam-item">
                         <div class="exam-info">
                             <strong>{{ exam.title }}</strong>
-                            <span>
-                                <i class="far fa-clock"></i> {{ exam.duration // 60 }} dk &nbsp;·&nbsp;
-                                {{ exam.questions|length }} soru &nbsp;·&nbsp;
-                                {{ exam.start_time.strftime('%d.%m %H:%M') }} – {{ exam.end_time.strftime('%H:%M') }}
+                            <span style="display: flex; gap: 10px; margin-top: 5px;">
+                                <span style="color: #5e5adb; font-weight: 600;">
+                                    <i class="fas fa-graduation-cap"></i> {{ level_labels[exam.target_level] }} {{ exam.target_grade }}. Sınıf
+                                </span>
+                                <span><i class="far fa-clock"></i> {{ exam.duration // 60 }} dk • {{ exam.questions|length }} soru</span>
                             </span>
                         </div>
+                        
                         {% if exam.status == 'active' %}
-                            <span class="status-pill pill-active"><i class="fas fa-circle" style="font-size:7px;"></i> Aktif</span>
+                            <span class="status-pill" style="background: #d1fae5; color: #065f46;">Aktif</span>
                         {% elif exam.status == 'upcoming' %}
-                            <span class="status-pill pill-upcoming"><i class="fas fa-clock"></i> Yakında</span>
+                            <span class="status-pill" style="background: #e0e7ff; color: #3730a3;">Yakında</span>
                         {% else %}
-                            <span class="status-pill pill-expired"><i class="fas fa-lock"></i> Bitti</span>
+                            <span class="status-pill" style="background: #f3f4f6; color: #6b7280;">Süresi Doldu</span>
                         {% endif %}
                     </div>
-                    {% else %}
-                    <p style="color:#bbb; font-size:14px; padding:10px 0;">Henüz sınav oluşturmadınız.</p>
                     {% endfor %}
                 </div>
             </div>
 
-            <!-- Sağ: Sonuçlar -->
             <div class="content-card">
                 <div class="card-header">
                     <h3>Öğrenci Sonuçları</h3>
                     <span class="badge-count">{{ total_participation }} kayıt</span>
                 </div>
-                {% if results %}
                 <table class="results-table">
                     <thead>
                         <tr>
@@ -196,33 +96,21 @@
                         <tr>
                             <td>
                                 <div class="student-cell">
-                                    <div class="mini-avatar">{{ res.user.name[:2].upper() }}</div>
+                                    <span class="mini-avatar">{{ res.user.name[:2].upper() }}</span>
                                     <span>{{ res.user.name }}</span>
                                 </div>
                             </td>
-                            <td style="color:#666; font-size:12px;">{{ res.exam.title }}</td>
-                            <td>
-                                {% set s = res.score|round|int %}
-                                {% if s >= 70 %}
-                                    <span class="score-tag">{{ s }}</span>
-                                {% elif s >= 50 %}
-                                    <span class="score-tag mid">{{ s }}</span>
-                                {% else %}
-                                    <span class="score-tag low">{{ s }}</span>
-                                {% endif %}
-                            </td>
+                            <td>{{ res.exam.title }}</td>
+                            <td><span class="score-tag">%{{ res.score|round|int }}</span></td>
                             <td>
                                 <a href="/student_details/{{ res.id }}" class="inspect-link">
-                                    İncele <i class="fas fa-arrow-right"></i>
+                                    <i class="fas fa-arrow-right"></i> İncele
                                 </a>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-                {% else %}
-                <p style="color:#bbb; font-size:14px; padding:10px 0;">Henüz sınav sonucu yok.</p>
-                {% endif %}
             </div>
         </div>
     </div>

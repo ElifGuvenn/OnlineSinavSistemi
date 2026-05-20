@@ -1,4 +1,3 @@
-import os
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from models import db, User, Exam, Question, Result, UserAnswer
@@ -11,23 +10,16 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
-
-# ─── SEED ────────────────────────────────────────────────────────────────────
-def seed_data():
-    if not User.query.filter_by(email='hoca@test.com').first():
-        hoca    = User(name='Test Hoca',     email='hoca@test.com',    password='123', role='teacher')
-        ogrenci = User(name='Test Öğrenci',  email='ogrenci@test.com', password='123', role='student')
-        db.session.add_all([hoca, ogrenci])
-        db.session.commit()
-        # Test: hocayı öğrenciye ata
-        hoca.students.append(ogrenci)
-        db.session.commit()
-        print("Sistem: Test kullanıcıları ve ilişkileri yüklendi!")
+LEVEL_LABELS = {
+    'ilkokul':    'İlkokul',
+    'ortaokul':   'Ortaokul',
+    'lise':       'Lise',
+    'universite': 'Üniversite',
+}
 
 
 # ─── YARDIMCI ─────────────────────────────────────────────────────────────────
 def login_required(role=None):
-    """Kullanıcı giriş yapmamışsa veya rolü uyuşmuyorsa index'e yönlendir."""
     if not session.get('user_id'):
         return redirect(url_for('index'))
     if role and session.get('role') != role:
@@ -47,7 +39,16 @@ def index():
             session['user_id'] = user.id
             session['role']    = user.role
             session['name']    = user.name
-            return redirect(url_for('teacher_dashboard') if user.role == 'teacher' else url_for('exams_list'))
+
+            if user.role == 'teacher':
+                return redirect(url_for('teacher_dashboard'))
+
+            # Öğrenci profili eksikse önce profile yönlendir
+            if not user.profile_complete:
+                flash('Sınavlara erişmek için lütfen önce profilinizi tamamlayın.', 'warning')
+                return redirect(url_for('student_profile'))
+
+            return redirect(url_for('exams_list'))
         else:
             flash('Hatalı e-posta veya şifre!', 'danger')
 
@@ -74,17 +75,45 @@ def register():
     return render_template('register.html')
 
 
-# ─── 3. ÖĞRETMEN PANELİ ──────────────────────────────────────────────────────
+# ─── 3. ÖĞRENCİ PROFİL ───────────────────────────────────────────────────────
+@app.route('/profile', methods=['GET', 'POST'])
+def student_profile():
+    redir = login_required(role='student')
+    if redir: return redir
+
+    student = User.query.get(session['user_id'])
+
+    if request.method == 'POST':
+        level = request.form.get('school_level')
+        grade = request.form.get('grade')
+
+        if level not in ['ilkokul', 'ortaokul', 'lise', 'universite']:
+            flash('Geçerli bir okul düzeyi seçiniz!', 'danger')
+            return redirect(url_for('student_profile'))
+
+        if not grade or int(grade) not in [1, 2, 3, 4]:
+            flash('Geçerli bir sınıf seçiniz!', 'danger')
+            return redirect(url_for('student_profile'))
+
+        student.school_level = level
+        student.grade        = int(grade)
+        db.session.commit()
+        flash('Profiliniz güncellendi!', 'success')
+        return redirect(url_for('exams_list'))
+
+    return render_template('student_profile.html', student=student, level_labels=LEVEL_LABELS)
+
+
+# ─── 4. ÖĞRETMEN PANELİ ──────────────────────────────────────────────────────
 @app.route('/teacher')
 def teacher_dashboard():
     redir = login_required(role='teacher')
     if redir: return redir
 
-    teacher      = User.query.get(session['user_id'])
-    exams        = Exam.query.filter_by(teacher_id=teacher.id).all()
-    # Bu öğretmenin sınavlarına ait tüm sonuçlar
-    exam_ids     = [e.id for e in exams]
-    results      = Result.query.filter(Result.exam_id.in_(exam_ids)).all() if exam_ids else []
+    teacher  = User.query.get(session['user_id'])
+    exams    = Exam.query.filter_by(teacher_id=teacher.id).all()
+    exam_ids = [e.id for e in exams]
+    results  = Result.query.filter(Result.exam_id.in_(exam_ids)).all() if exam_ids else []
 
     total_exams         = len(exams)
     total_participation = len(results)
@@ -96,10 +125,11 @@ def teacher_dashboard():
                            results=results,
                            total_exams=total_exams,
                            total_participation=total_participation,
-                           avg_score=avg_score)
+                           avg_score=avg_score,
+                           level_labels=LEVEL_LABELS)
 
 
-# ─── 4. SINAV OLUŞTUR ────────────────────────────────────────────────────────
+# ─── 5. SINAV OLUŞTUR ────────────────────────────────────────────────────────
 @app.route('/create_exam', methods=['GET', 'POST'])
 def create_exam():
     redir = login_required(role='teacher')
@@ -111,8 +141,10 @@ def create_exam():
         title          = request.form.get('title')
         duration       = int(request.form.get('duration')) * 60
         question_count = int(request.form.get('question_count'))
-        start_str      = request.form.get('start_time')   # "2025-06-01T09:00"
-        end_str        = request.form.get('end_time')     # "2025-06-01T10:30"
+        start_str      = request.form.get('start_time')
+        end_str        = request.form.get('end_time')
+        target_level   = request.form.get('target_level')
+        target_grade   = request.form.get('target_grade')
 
         try:
             start_time = datetime.strptime(start_str, '%Y-%m-%dT%H:%M')
@@ -125,8 +157,19 @@ def create_exam():
             flash('Bitiş zamanı başlangıçtan sonra olmalıdır!', 'danger')
             return redirect(url_for('create_exam'))
 
-        new_exam = Exam(teacher_id=teacher.id, title=title, duration=duration,
-                        start_time=start_time, end_time=end_time)
+        if target_level not in ['ilkokul', 'ortaokul', 'lise', 'universite']:
+            flash('Geçerli bir okul düzeyi seçiniz!', 'danger')
+            return redirect(url_for('create_exam'))
+
+        new_exam = Exam(
+            teacher_id   = teacher.id,
+            title        = title,
+            duration     = duration,
+            start_time   = start_time,
+            end_time     = end_time,
+            target_level = target_level,
+            target_grade = int(target_grade)
+        )
         db.session.add(new_exam)
         db.session.commit()
 
@@ -151,49 +194,32 @@ def create_exam():
     return render_template('create_exam.html')
 
 
-# ─── 5. ÖĞRENCİ YÖNETİMİ (hoca - öğrenci eşleştirme) ───────────────────────
-@app.route('/manage_students', methods=['GET', 'POST'])
-def manage_students():
-    redir = login_required(role='teacher')
-    if redir: return redir
-
-    teacher      = User.query.get(session['user_id'])
-    all_students = User.query.filter_by(role='student').all()
-
-    if request.method == 'POST':
-        selected_ids = request.form.getlist('student_ids')  # checkbox listesi
-        # Mevcut listeyi sıfırla, yeniden ata
-        teacher.students = []
-        for sid in selected_ids:
-            student = User.query.get(int(sid))
-            if student and student.role == 'student':
-                teacher.students.append(student)
-        db.session.commit()
-        flash('Öğrenci listesi güncellendi!', 'success')
-        return redirect(url_for('manage_students'))
-
-    return render_template('manage_students.html',
-                           teacher=teacher,
-                           all_students=all_students)
-
-
 # ─── 6. ÖĞRENCİ SINAV LİSTESİ ────────────────────────────────────────────────
 @app.route('/exams')
 def exams_list():
     redir = login_required()
     if redir: return redir
 
-    student      = User.query.get(session['user_id'])
-    # Öğrencinin bağlı olduğu öğretmenlerin sınavları
-    teacher_ids  = [t.id for t in student.teachers]
-    all_exams    = Exam.query.filter(Exam.teacher_id.in_(teacher_ids)).all() if teacher_ids else []
+    student = User.query.get(session['user_id'])
 
-    completed    = {r.exam_id: r for r in Result.query.filter_by(user_id=student.id).all()}
+    # Profil tamamlanmamışsa yönlendir
+    if not student.profile_complete:
+        flash('Sınavlara erişmek için lütfen önce profilinizi tamamlayın.', 'warning')
+        return redirect(url_for('student_profile'))
+
+    # Sadece öğrencinin düzey ve sınıfına uyan sınavlar
+    exams = Exam.query.filter_by(
+        target_level=student.school_level,
+        target_grade=student.grade
+    ).all()
+
+    completed = {r.exam_id: r for r in Result.query.filter_by(user_id=student.id).all()}
 
     return render_template('exams.html',
-                           exams=all_exams,
+                           exams=exams,
                            current_user=student,
-                           completed_exams=completed)
+                           completed_exams=completed,
+                           level_labels=LEVEL_LABELS)
 
 
 # ─── 7. SINAV EKRANI ─────────────────────────────────────────────────────────
@@ -205,8 +231,8 @@ def take_exam(exam_id):
     student = User.query.get(session['user_id'])
     exam    = Exam.query.get_or_404(exam_id)
 
-    # Erişim kontrolü: öğrenci bu hocanın öğrencisi mi?
-    if exam.teacher not in student.teachers:
+    # Düzey/sınıf eşleşme kontrolü
+    if exam.target_level != student.school_level or exam.target_grade != student.grade:
         flash('Bu sınava erişim yetkiniz yok!', 'danger')
         return redirect(url_for('exams_list'))
 
@@ -231,8 +257,8 @@ def take_exam(exam_id):
             if is_correct:
                 correct_count += 1
 
-        total  = len(questions)
-        score  = (correct_count / total) * 100 if total else 0
+        total = len(questions)
+        score = (correct_count / total) * 100 if total else 0
 
         result = Result(user_id=student.id, exam_id=exam_id, score=score)
         db.session.add(result)
@@ -269,7 +295,7 @@ def take_exam(exam_id):
     return render_template('exam.html', exam=exam)
 
 
-# ─── 8. ÖĞRENCİ DETAYI (öğretmen görür) ─────────────────────────────────────
+# ─── 8. ÖĞRENCİ DETAYI (öğretmen) ───────────────────────────────────────────
 @app.route('/student_details/<int:result_id>')
 def student_details(result_id):
     redir = login_required(role='teacher')
@@ -278,7 +304,6 @@ def student_details(result_id):
     result  = Result.query.get_or_404(result_id)
     teacher = User.query.get(session['user_id'])
 
-    # Sadece kendi sınavının sonucunu görebilir
     if result.exam.teacher_id != teacher.id:
         flash('Bu sonuca erişim yetkiniz yok!', 'danger')
         return redirect(url_for('teacher_dashboard'))
@@ -296,5 +321,4 @@ def logout():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        seed_data()
     app.run(debug=True)
