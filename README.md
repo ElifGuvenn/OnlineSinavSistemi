@@ -41,4 +41,5 @@ Katkı (Contribution)
 Bu proje, bir üniversite final projesi olduğundan şu an için dışarıdan katkılara kapalıdır (Pull Request kabul edilmemektedir).
 
 Lisans
+
 Bu proje MIT Lisansı altında lisanslanmıştır.
